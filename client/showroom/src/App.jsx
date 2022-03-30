@@ -5,7 +5,7 @@ import { Route, Routes } from "react-router-dom";
 function App() {
   return (
     <div className="App">
-      <h1>TEST</h1>
+      <h1>STORE.</h1>
       <div className="app__content">
         <Routes>
           <Route path="/" element={<ProductList />} />
