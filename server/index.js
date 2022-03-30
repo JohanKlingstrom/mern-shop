@@ -8,27 +8,63 @@ import cors from "cors";
 const MONGODB_URL = "mongodb://localhost:27017";
 const PORT = 1337;
 
-// Configuring the MongoClient to talk to MongoDB
 const mongoClient = new mongodb.MongoClient(MONGODB_URL);
-// Connecting the client to the database
 mongoClient.connect();
-// Grabbing the shop database
+
+//DIFFERENT ENDPOINTS
 const db = mongoClient.db("testshop");
-// Picking out the products collection
-const collection = db.collection("products");
+const productCollection = db.collection("products");
+const cartCollection = db.collection("cart");
 
 const app = express();
+app.use(express.json());
 
 app.use(
     cors({
       origin: "http://localhost:3000",
     })
 );
-app.use(express.json());
 
+
+// GET PRODUCTS
+// When we send a get request to "/items" we are returned a json object of the items.
 app.get("/items", async (request, response) => {
-    const items = await collection.find().toArray();
+    const items = await productCollection.find().toArray();
     response.json(items);
+});
+
+app.get("/items/:itemId", async (request, response) => {
+    const itemId = request.params._id;
+  
+    const item = await collection.findOne({ _id: itemId });
+  
+    if (item) {
+      response.json(item);
+    } else {
+      response.sendStatus(404);
+    }
+  });
+
+//GET cart
+app.get("/carts/:cartId", async (request, response) => {
+    const cartId = request.params._id;
+  
+    const cart = await collection.findOne({ _id: cartId });
+  
+    if (cart) {
+      response.json(cart);
+    } else {
+      response.sendStatus(404);
+    }
+  });
+
+// POST shit to cart
+app.post("/cart", async (request, response) => {
+    const cartItem = request.body;
+
+    await cartCollection.insertOne(cartItem);
+
+    response.status(200).end();
 });
 
 app.listen(PORT, () => {
